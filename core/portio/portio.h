@@ -52,7 +52,7 @@
                        }
 
 /* ATMega64 | ATMega128 */
-#elif defined(_ATMEGA64) || defined(_ATMEGA128)
+#elif defined(_ATMEGA64) || defined(_ATMEGA128) || defined(_ATMEGA169)
 
 
 #define IO_HARD_PORTS 6
