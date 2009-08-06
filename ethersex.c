@@ -1,6 +1,6 @@
 /*
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2007,2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -85,12 +85,17 @@ int main(void)
 	#if DDR_MASK_D != 0
 	DDRD = DDR_MASK_D;
 	#endif
-	#if IO_HARD_PORTS == 6
+	#if IO_HARD_PORTS >= 6
 		#if DDR_MASK_E != 0
 		DDRE = DDR_MASK_E;
 		#endif
 		#if DDR_MASK_F != 0
 		DDRF = DDR_MASK_F;
+		#endif
+	#endif
+	#if IO_HARD_PORTS >= 7
+		#if DDR_MASK_G != 0
+		DDRG = DDR_MASK_G;
 		#endif
 	#endif
 
