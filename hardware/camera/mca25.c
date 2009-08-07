@@ -62,7 +62,7 @@ PROGMEM char MCA25_START_JPG[] = {
 
 
 PROGMEM char MCA25_START_CAPTURING_1[] = {
-"\xF9\x81\xEF\x3F\x83\x00\x69\x71\x00\x3F\x3C?<monitoring-command versi\x8C\xF9"};
+"\xF9\x81\xEF\x3F\x83\x00\x69\x71\x00?<monitoring-command versi\x8C\xF9"};
 
 PROGMEM char MCA25_START_CAPTURING_2[] = {
 "\xF9\x81\xEF?on=\"1.0\" take-pic=\"YES\" zoom=\"1\x8C\xF9"
@@ -72,10 +72,10 @@ PROGMEM char MCA25_START_CAPTURING_3[] = {
 "\xF9\x81\xEF\x19image\x00\x4C\x00\x06\x06\x01\x80\x50\xF9"};
 
 PROGMEM char MCA25_CONFIG_640x480[] = {
-"\xF9\x81\xEF\x3F\x82\x01\x3B\x01\x00\x03\x49\x01\x35\x3C<camera-settings versi\x8C\xF9"
+"\xF9\x81\xEF\x3F\x82\x01\x3B\x01\x00\x03\x49\x01\x35<camera-settings versi\x8C\xF9"
 "\xF9\x81\xEF?on=\"1.0\" white-balance=\"OFF\" co\x8C\xF9"
 "\xF9\x81\xEF?lor-compensation=\"13\" fun-layer\x8C\xF9"
-"\xF9\x81\xEF?=\""MCA25_FUNLAYER"\"><monitoring-fo rmat encodin\x8C\xF9"
+"\xF9\x81\xEF?=\""MCA25_FUNLAYER"\"><monitoring-format encodin\x8C\xF9"
 "\xF9\x81\xEF?g=\"EBMP\" pixel-size=\"80*60\" col\x8C\xF9"
 "\xF9\x81\xEF?or-depth=\"8\"/>\x0D\x0A<thumbnail-form\x8C\xF9"
 "\xF9\x81\xEF?at encoding=\"EBMP\" pixel-size=\"\x8C\xF9"
