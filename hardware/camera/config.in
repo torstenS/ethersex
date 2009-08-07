@@ -49,23 +49,23 @@ dep_bool_menu "Camera support (EXPERIMENTAL)" CAMERA_SUPPORT
       'None'
 
     if [ "$CONFIG_MCA25_FUN_NONE" = "y" ]; then
-      define_int MCA25_FUNLAYER 0x30
+      define_string MCA25_FUNLAYER "0" 
     elif [ "$CONFIG_MCA25_FUN_BUBBLES" = "y" ]; then
-      define_int MCA25_FUNLAYER 0x31
+      define_string MCA25_FUNLAYER "1"
     elif [ "$CONFIG_MCA25_FUN_HEARTS" = "y" ]; then
-      define_int MCA25_FUNLAYER 0x32
+      define_string MCA25_FUNLAYER "2"
     elif [ "$CONFIG_MCA25_FUN_SIMPLEF" = "y" ]; then
-      define_int MCA25_FUNLAYER 0x33
+      define_string MCA25_FUNLAYER "3"
     elif [ "$CONFIG_MCA25_FUN_STARF" = "y" ]; then
-      define_int MCA25_FUNLAYER 0x34
+      define_string MCA25_FUNLAYER "4"
     elif [ "$CONFIG_MCA25_FUN_PRISON" = "y" ]; then
-      define_int MCA25_FUNLAYER 0x35
+      define_string MCA25_FUNLAYER "5"
     elif [ "$CONFIG_MCA25_FUN_PRESENT" = "y" ]; then
-      define_int MCA25_FUNLAYER 0x36
+      define_string MCA25_FUNLAYER "6"
     elif [ "$CONFIG_MCA25_FUN_CINEMA" = "y" ]; then
-      define_int MCA25_FUNLAYER 0x37
+      define_string MCA25_FUNLAYER "7"
     elif [ "$CONFIG_MCA25_FUN_GLASSES" = "y" ]; then
-      define_int MCA25_FUNLAYER 0x38
+      define_string MCA25_FUNLAYER "8"
     fi
 
     comment "Debugging Flags"
