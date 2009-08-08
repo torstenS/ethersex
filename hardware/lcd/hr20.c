@@ -27,19 +27,12 @@
  *		 2009 Thomas Vosshagen (mod. for THERMOTronic) (openhr20-at-vosshagen-dot-com)
  */
 
-#include <stdlib.h>
 #include <string.h>
 
 #include "config.h"
-
 #include "hardware/lcd/hr20.h"
-#include "protocols/ecmd/ecmd-base.h"
-#include "core/debug.h"
-#define HR20_LCD_INITIAL_CONTRAST   14
 
-#define LCD_SEG_SET(i)		((&LCDDR0)[(i)/8] |=  (1 << ((i) & 7)))
-#define LCD_SEG_CLEAR(i)	((&LCDDR0)[(i)/8] &= ~(1 << ((i) & 7)))
-#define LCD_SEG_TOGGLE(i)	((&LCDDR0)[(i)/8] ^=  (1 << ((i) & 7)))
+#define HR20_LCD_INITIAL_CONTRAST   14
 
 #include "hr20-charset.c"
 
@@ -114,19 +107,8 @@ hr20_lcd_hourbar (uint8_t start, uint8_t stop)
 }
 
 
-int16_t parse_cmd_hr20_toggle(char *cmd, char *output, uint16_t len)
-{
-  uint8_t i = atoi (cmd);
-  if (i >= 160)
-    return ECMD_ERR_PARSE_ERROR;
-
-  LCD_SEG_TOGGLE (i);
-  return ECMD_FINAL_OK;
-}
-
 /*
   -- Ethersex META --
   header(hardware/lcd/hr20.h)
   init(hr20_lcd_init)
-  ecmd_feature(hr20_toggle, "hr20 toggle ", SEG, Toggle segment SEG (a number, not a symbolic name!))
 */
