@@ -74,6 +74,7 @@ hr20_lcd_init (void)
 
   hr20_lcd_putchar (2, HR20_LCD_CHAR_2);
   hr20_lcd_putchar (1, HR20_LCD_CHAR_3);
+  hr20_lcd_hourbar (23, 5);
 }
 
 
@@ -86,6 +87,26 @@ hr20_lcd_putchar (uint8_t pos, uint8_t ch)
   for (uint8_t i = 0; i < 7; i ++) {
     uint8_t seg = pos + pgm_read_byte (&hr20_seg_offsets[i]);
     if (ch & _BV(i))
+      LCD_SEG_SET (seg);
+    else
+      LCD_SEG_CLEAR (seg);
+  }
+}
+
+
+void
+hr20_lcd_hourbar (uint8_t start, uint8_t stop)
+{
+  uint8_t left_portion = 0;
+
+  if (stop < start) {
+    left_portion = stop + 1;
+    stop = 24;
+  }
+
+  for (uint8_t i = 0; i < 24; i ++) {
+    uint8_t seg = pgm_read_byte (&hr20_bar_offsets[i]);
+    if (i < left_portion || (i >= start && i <= stop))
       LCD_SEG_SET (seg);
     else
       LCD_SEG_CLEAR (seg);

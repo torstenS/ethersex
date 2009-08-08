@@ -24,6 +24,7 @@
 
 void hr20_lcd_init (void);
 void hr20_lcd_putchar (uint8_t pos, uint8_t ch);
+void hr20_lcd_hourbar (uint8_t start, uint8_t stop);
 
 #endif  /* HR20_LCD_H */
 
