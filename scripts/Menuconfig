@@ -1150,6 +1150,7 @@ Select the default profile you wish to load. \
 			netio		  "Pollin AVR Net-IO"		0 \
 			radig		  "Radig AVR Webmodul"		0 \
 			arduino_duemilanove  "Arduino Duemilanove"		0 \
+			hr20		  "Rondostat HR20/Thermotronic Basic/Thermy"	0 \
 			rfm12-teensy	  "RFM12 Standalone"		0 \
 			zbus-teensy	  "ZBUS Standalone"		0 \
 			usb-teensy	  "USB (Network) Standalone"	0 \
