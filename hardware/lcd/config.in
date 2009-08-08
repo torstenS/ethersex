@@ -18,8 +18,11 @@ comment "LCD Displays"
 
   dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT
 
+  dep_bool "HR20-style LCD Display (EXPERIMENTAL)" HR20_LCD_SUPPORT $atmega169 $EXPERIMENTAL_SUPPORT
+
 	comment  "Debugging Flags"
 	dep_bool 'HD44780' DEBUG_HD44780 $DEBUG
 	dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT
-	
+
+
 endmenu
