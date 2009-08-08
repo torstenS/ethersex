@@ -5,6 +5,7 @@ $(HD44780_SUPPORT)_SRC += hardware/lcd/hd44780.c
 $(HD44780_SUPPORT)_ECMD_SRC += hardware/lcd/ecmd.c
 
 $(HR20_LCD_SUPPORT)_SRC += hardware/lcd/hr20.c
+$(HR20_LCD_SUPPORT)_ECMD_SRC += hardware/lcd/hr20-ecmd.c
 
 
 ##############################################################################
