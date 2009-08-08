@@ -1,5 +1,5 @@
 
-#define BOOTLOADER_SECTION 0x0c00 /* atmega168 with 1024 words bootloader */
+#define BOOTLOADER_SECTION 0x3800 /* atmega168 with 1024 words bootloader */
 
 #define _ATMEGA168
 
