@@ -20,7 +20,6 @@
  */
 
 /*
- *
  * Parts of this file are derived from Open HR20 LCD Driver, which is
  * distributed unter GPLv2+ and
  *
@@ -33,13 +32,16 @@
 
 #include "config.h"
 
+#include "hardware/lcd/hr20.h"
 #include "protocols/ecmd/ecmd-base.h"
-
+#include "core/debug.h"
 #define HR20_LCD_INITIAL_CONTRAST   14
 
 #define LCD_SEG_SET(i)		((&LCDDR0)[(i)/8] |=  (1 << ((i) & 7)))
 #define LCD_SEG_CLEAR(i)	((&LCDDR0)[(i)/8] &= ~(1 << ((i) & 7)))
 #define LCD_SEG_TOGGLE(i)	((&LCDDR0)[(i)/8] ^=  (1 << ((i) & 7)))
+
+#include "hr20-charset.c"
 
 void
 hr20_lcd_init (void)
@@ -69,6 +71,25 @@ hr20_lcd_init (void)
 
   LCD_SEG_SET (LCD_SEG_MOON);
   LCD_SEG_SET (LCD_SEG_AUTO);
+
+  hr20_lcd_putchar (2, HR20_LCD_CHAR_2);
+  hr20_lcd_putchar (1, HR20_LCD_CHAR_3);
+}
+
+
+void
+hr20_lcd_putchar (uint8_t pos, uint8_t ch)
+{
+  pos = pgm_read_byte (&hr20_nf_offsets[pos]);
+  ch = pgm_read_byte (&hr20_charset[ch]);
+
+  for (uint8_t i = 0; i < 7; i ++) {
+    uint8_t seg = pos + pgm_read_byte (&hr20_seg_offsets[i]);
+    if (ch & _BV(i))
+      LCD_SEG_SET (seg);
+    else
+      LCD_SEG_CLEAR (seg);
+  }
 }
 
 
@@ -84,6 +105,7 @@ int16_t parse_cmd_hr20_toggle(char *cmd, char *output, uint16_t len)
 
 /*
   -- Ethersex META --
+  header(hardware/lcd/hr20.h)
   init(hr20_lcd_init)
   ecmd_feature(hr20_toggle, "hr20 toggle ", SEG, Toggle segment SEG (a number, not a symbolic name!))
 */
