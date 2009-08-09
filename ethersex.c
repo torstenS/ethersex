@@ -141,11 +141,15 @@ int main(void)
 	#endif //USE_WATCHDOG
 
 	#ifdef ADC_SUPPORT
+	#if F_CPU == 1000000
+	/* ADC Prescaler 8 */
+	ADCSRA = _BV(ADEN) | _BV(ADPS1) | _BV(ADPS0);
+	#else
 	/* ADC Prescaler to 64 */
 	ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
-	/* ADC set Voltage Reference to extern*/
-	/* FIXME: move config to the right place */
-	ADMUX = ADC_REF; //_BV(REFS0) | _BV(REFS1);
+	#endif
+
+	ADMUX = ADC_REF;
 	#endif
 
 	#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
