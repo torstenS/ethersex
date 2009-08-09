@@ -33,6 +33,9 @@ pin(TEMP_ENABLE, PF2, OUTPUT)
 pin(TEMP_SENSE, PF0)
 
 
+#define ADC_MUX_TEMP_SENSE	0
+
+
 dnl *******************************************************************************
 dnl *  LCD Layout:
 dnl *
