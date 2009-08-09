@@ -27,6 +27,7 @@
  *		 2009 Thomas Vosshagen (mod. for THERMOTronic) (openhr20-at-vosshagen-dot-com)
  */
 
+#include <util/delay.h>
 #include <string.h>
 
 #include "config.h"
@@ -39,8 +40,8 @@
 void
 hr20_lcd_init (void)
 {
-  /* Clear display (i.e. write zero to LCDDR0..LCDDR19). */
-  memset ((void *) &LCDDR0, 0, 20);
+  /* Set all segments (i.e. write 0xFF to LCDDR0..LCDDR19). */
+  memset ((void *) &LCDDR0, 0xFF, 20);
 
   /* Set the initial LCD contrast level */
   LCDCCR = HR20_LCD_INITIAL_CONTRAST << LCDCC0;
@@ -61,6 +62,16 @@ hr20_lcd_init (void)
 	- Enable LCD
 	- Set Low Power Waveform */
   LCDCRA = (1<<LCDEN) | (1<<LCDAB);
+
+  /* Wait some time showing all segments, i.e. some kind
+     of display test/show activity. */
+  for (uint8_t i = 0; i < 100; i ++) {
+    wdt_kick ();
+    _delay_ms (10);
+  }
+
+  /* Clear display (i.e. write zero to LCDDR0..LCDDR19). */
+  memset ((void *) &LCDDR0, 0, 20);
 
   LCD_SEG_SET (LCD_SEG_MOON);
   LCD_SEG_SET (LCD_SEG_AUTO);
