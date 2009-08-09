@@ -49,7 +49,7 @@ int16_t parse_cmd_hr20_hourbar(char *cmd, char *output, uint16_t len)
   uint8_t start = atoi(cmd);
   uint8_t stop = atoi(ptr);
 
-  if (start > 23 || stop > 23)
+  if (start > 24 || stop > 24)
     return ECMD_ERR_PARSE_ERROR;
 
   hr20_lcd_hourbar (start, stop);
