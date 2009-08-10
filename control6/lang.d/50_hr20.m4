@@ -21,6 +21,7 @@ dnl
 
 divert(globals_divert)dnl
 #include "hardware/lcd/hr20.h"
+#include "hardware/adc/hr20-temp.h"
 
 divert(-1)dnl
 
@@ -28,13 +29,14 @@ dnl ==========================================================================
 dnl HR20_SHOW_TEMP(TEMP)
 dnl ==========================================================================
 define(`HR20_SHOW_TEMP', `{
-	if($1<100)
+	int16_t hr20_st_val = $1;
+	if(hr20_st_val<100)
 		hr20_lcd_putchar(3, HR20_LCD_CHAR_SPACE);
 	else
-		hr20_lcd_putchar(3, $1 / 100);
+		hr20_lcd_putchar(3, hr20_st_val / 100);
 
-	hr20_lcd_putchar(2, ($1 / 10) % 10);
-	hr20_lcd_putchar(1, ($1 % 10));
+	hr20_lcd_putchar(2, (hr20_st_val / 10) % 10);
+	hr20_lcd_putchar(1, (hr20_st_val % 10));
 	hr20_lcd_putchar(0, HR20_LCD_CHAR_DEG);
 
 	LCD_SEG_SET (LCD_SEG_COL1);
