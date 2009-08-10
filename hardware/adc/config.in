@@ -15,6 +15,7 @@ dep_bool_menu "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
 		define_symbol ADC_REF ADC_2_56
 	fi
 
+	source hardware/adc/kty/config.in
 	dep_bool "HR20-style Temperature Sensor (EXPERIMENTAL)" HR20_TEMP_SUPPORT $CONFIG_ADC_AVCC $CONFIG_EXPERIMENTAL
 endmenu
 
