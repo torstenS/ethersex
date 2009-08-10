@@ -21,3 +21,9 @@ dep_bool_menu "ADC input" ADC_SUPPORT $ECMD_PARSER_SUPPORT
 
 	dep_bool "HR20-style Temperature Sensor (EXPERIMENTAL)" HR20_TEMP_SUPPORT $CONFIG_ADC_AVCC $CONFIG_EXPERIMENTAL
 endmenu
+
+if [ "$KTY_SUPPORT" = "y" -o "$HR20_TEMP_SUPPORT" = "y" ]; then
+	define_bool	NEED_TEMP2TEXT	y
+else
+	define_bool	NEED_TEMP2TEXT	n
+fi

@@ -15,13 +15,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
-#ifndef ADC_KTY81_H
-#define ADC_KTY81_H
+#ifndef TEMP2TEXT_H
+#define TEMP2TEXT_H
 
 #include <stdint.h>
+void temp2text(char *textbuf, int16_t temperatur);
 
-uint16_t get_kty(uint8_t sensorchannel);
-int8_t kty_calibrate(uint16_t sensorwert);
-int16_t temperatur(uint16_t sensorwert);
-
-#endif /* ADC_KTY81_H */
+#endif  /* TEMP2TEXT_H */
