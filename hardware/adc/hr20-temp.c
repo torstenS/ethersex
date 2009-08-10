@@ -38,5 +38,6 @@ hr20_temp_get (void)
   debug_printf ("adc result: %d\n", adc);
 
   PIN_CLEAR (TEMP_ENABLE);
-  return 0;
+  return hr20_adc_to_temp (adc);
 }
+

@@ -19,14 +19,19 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <avr/pgmspace.h>
+#include <stdio.h>
+
 #include "config.h"
-#include "hr20-temp.h"
+#include "hardware/adc/hr20-temp.h"
+#include "hardware/adc/temp2text.h"
 #include "protocols/ecmd/ecmd-base.h"
 
 int16_t parse_cmd_hr20_temp (char *cmd, char *output, uint16_t len)
 {
-  hr20_temp_get ();
-  return ECMD_FINAL_OK;
+  int16_t temp = hr20_temp_get ();
+  temp2text(output, temp);
+  return ECMD_FINAL (5);
 }
 
 /*
