@@ -134,7 +134,7 @@
    - STELLA with eeprom load/write support */
 #if (defined(ECMD_PARSER_SUPPORT) && (!defined(TEENSY_SUPPORT)))  \
   || (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT)) \
-  || defined(STELLA_EEPROM)
+  || defined(STELLA_EEPROM) || defined(KTY_SUPPORT)
 #  define EEPROM_SUPPORT 1
 #endif
 
