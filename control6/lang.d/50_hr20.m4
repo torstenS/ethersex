@@ -23,6 +23,28 @@ divert(globals_divert)dnl
 #include "hardware/lcd/hr20.h"
 #include "hardware/adc/hr20-temp.h"
 
+#ifdef NEED_HR20_GET_BATT
+uint16_t
+HR20_GET_BATT (void)
+{
+#ifndef CONFIG_ADC_AVCC
+#error ADC REF must be AVcc!
+#endif
+
+  ADMUX = 0x1e | ADC_REF;
+
+  ADCSRA |= _BV(ADSC);
+  while (ADCSRA & _BV(ADSC));
+  ADCSRA |= _BV(ADSC);
+  while (ADCSRA & _BV(ADSC));
+
+  uint32_t centivolt = 112640 / ADC;
+
+  DEBUG("get batt: %d cV", (uint16_t) centivolt);
+  return (uint16_t) centivolt;
+}
+#endif
+
 divert(-1)dnl
 
 dnl ==========================================================================
@@ -43,3 +65,17 @@ define(`HR20_SHOW_TEMP', `{
 	LCD_SEG_CLEAR (LCD_SEG_COL2);
 }')
 
+
+dnl ==========================================================================
+dnl HR20_SHOW_VOLTAGE(VOLTAGE)
+dnl ==========================================================================
+define(`HR20_SHOW_VOLTAGE', `{
+	int16_t hr20_st_val = $1;
+	hr20_lcd_putchar(3, HR20_LCD_CHAR_SPACE);
+	hr20_lcd_putchar(2, (hr20_st_val / 100));
+	hr20_lcd_putchar(1, (hr20_st_val / 10) % 10);
+	hr20_lcd_putchar(0, (hr20_st_val % 10));
+
+	LCD_SEG_SET (LCD_SEG_COL1);
+	LCD_SEG_CLEAR (LCD_SEG_COL2);
+}')

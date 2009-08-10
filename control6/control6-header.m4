@@ -20,7 +20,9 @@ dnl
 divert(-1)
 define(`C6_HEADER', `divert(0)$*
 divert(-1)')
+
 define(`ECMD_GLOBAL', `ifdef(`C6_ECMD_USED', `', `define(`C6_ECMD_USED')C6_HEADER(`#define C6_ECMD_USED 1')')')
+
 define(`CLOCK_USED', `ifdef(`C6_CLOCK_USED', `', `define(`C6_CLOCK_USED')C6_HEADER(`#define C6_CLOCK_USED 1')')')
 define(`CLOCK_SEC', `CLOCK_USED()')
 define(`CLOCK_MIN', `CLOCK_USED()')
@@ -29,6 +31,8 @@ define(`CLOCK_DAY', `CLOCK_USED()')
 define(`CLOCK_MONTH', `CLOCK_USED()')
 define(`CLOCK_DOW', `CLOCK_USED()')
 define(`CLOCK_YEAR', `CLOCK_USED()')
+
+define(`HR20_GET_BATT', `ifdef(`HR20_GET_BATT_USED', `', `define(`HR20_GET_BATT_USED')C6_HEADER(`#define NEED_HR20_GET_BATT 1')')')
 
 define(`ONCE', `CLOCK_USED()')
 divert(0)
