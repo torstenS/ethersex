@@ -181,6 +181,7 @@ unsigned char mca25_copy_image_data_to_tcp_buffer(uint8_t *buffer, uint16_t *buf
 		// sometimes hangs while grabbing another image ... strange
 		// reconfig mux (?)
 		MCA25_SEND("\xF9\x01\xEF\x0B\xE3\x07\x23\x0C\x01\x79\xF9");
+		mca25_cam_status = MCA25_FIRST_DATA;
 		
 		return 0; // this is a smaller packet -> it was the last
 	}else
