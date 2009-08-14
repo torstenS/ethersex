@@ -725,6 +725,7 @@ void mca25_reset_cam(){
     _delay_ms(10);
   usart_init();
 	MCA25_RESET_HI();
+	mca25_state = 1;
 }
 
 
