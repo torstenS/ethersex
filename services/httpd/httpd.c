@@ -53,6 +53,8 @@ httpd_init(void)
 void
 httpd_cleanup (void)
 {
+    STATE->closed = 1;
+
 #ifdef VFS_SUPPORT
     if (STATE->handler == httpd_handle_vfs && STATE->u.vfs.fd) {
 	printf("httpd: cleaning left-over vfs-handle at %p.\n",
@@ -283,7 +285,13 @@ httpd_main(void)
 	STATE->handler = NULL;
 	STATE->header_acked = 0;
 	STATE->eof = 0;
+	STATE->closed = 0;
 	STATE->header_reparse = 0;
+    }
+
+    if (STATE->closed) {
+	uip_close ();
+	return;
     }
 
     if (uip_newdata() && (!STATE->handler || STATE->header_reparse)) {
