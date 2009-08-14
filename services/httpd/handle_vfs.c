@@ -119,6 +119,7 @@ httpd_handle_vfs (void)
 	else {
 	    STATE->header_acked = 1;
 	    STATE->u.vfs.acked = 0;
+	    STATE->u.vfs.sent = 0;
 	}
     }
 
