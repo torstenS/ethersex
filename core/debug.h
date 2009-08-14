@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
 #include "core/global.h"
+#include "config.h"
 #include "protocols/syslog/syslog_debug.h"
 
 #define noinline __attribute__((noinline))

@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -50,6 +50,9 @@ enum vfs_type_t {
 #ifdef VFS_DC3840_SUPPORT
   VFS_DC3840,
 #endif
+#ifdef VFS_MCA25_SUPPORT
+  VFS_MCA25,
+#endif
 
   VFS_LAST
 };
@@ -73,6 +76,7 @@ typedef uint32_t vfs_size_t;
 #include "core/vfs/vfs_inline.h"
 #include "hardware/i2c/master/vfs_eeprom_raw.h"
 #include "hardware/camera/vfs_dc3840.h"
+#include "hardware/camera/vfs_mca25.h"
 
 struct vfs_file_handle_t {
   /* The vfs_type_t of the VFS module that is responsible for this
@@ -86,6 +90,7 @@ struct vfs_file_handle_t {
     vfs_file_handle_eeprom_t ee;
     vfs_file_handle_eeprom_raw_t ee_raw;
     vfs_file_handle_dc3840_t dc3840;
+    vfs_file_handle_mca25_t mca25;
   } u;
 };
 
@@ -123,6 +128,10 @@ struct vfs_func_t {
 
   /* Return the size of the file. */
   vfs_size_t (*size) (struct vfs_file_handle_t *);
+
+  /* If not-zero the MANDATORY blocksize of this filesystem module. 
+	   This is you mustn't call read/write with (len % blocksize != 0) */
+  uint8_t blocksize;
 };
 
 extern struct vfs_func_t vfs_funcs[];
@@ -163,6 +172,8 @@ vfs_size_t vfs_read_write_size(uint8_t flag, struct vfs_file_handle_t *handle,
   vfs_fseek_truncate_close(1, handle, length, 0)
 #define vfs_close(handle) \
   vfs_fseek_truncate_close(2, handle, 0, 0)
+#define vfs_blocksize(handle) \
+  vfs_fseek_truncate_close(3, handle, 0, 0)
 
 #define vfs_rewind(handle)      vfs_fseek(handle, 0, SEEK_SET)
 

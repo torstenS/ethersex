@@ -214,6 +214,7 @@ after_auth:
     /* Keep content-type identifing char. */
     STATE->u.vfs.content_type = *filename;
 
+    printf ("http_vfs: trying vfs_open for %s\n", filename);
     STATE->u.vfs.fd = vfs_open (filename);
     if (STATE->u.vfs.fd) {
       STATE->handler = httpd_handle_vfs;

@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "httpd.h"
+#include "core/debug.h"
 
 #ifdef MIME_SUPPORT
 #define READ_AHEAD_LEN 64
@@ -78,16 +79,31 @@ no_gzip:
 void
 httpd_handle_vfs_send_body (void)
 {
-    vfs_fseek (STATE->u.vfs.fd, STATE->u.vfs.acked, SEEK_SET);
-    vfs_size_t len = vfs_read (STATE->u.vfs.fd, uip_appdata, uip_mss ());
+    if (VFS_HAVE_FUNC (STATE->u.vfs.fd, fseek))
+	vfs_fseek (STATE->u.vfs.fd, STATE->u.vfs.acked, SEEK_SET);
+    else {
+	if (STATE->u.vfs.sent != STATE->u.vfs.acked) {
+	    debug_printf ("httpd[vfs]: eeek, need to rexmit but cannot seek! stop.\n");
+	    uip_abort ();
+	    httpd_cleanup ();
+	    return;
+	}
+    }
 
+    vfs_size_t readlen = uip_mss ();
+
+    uint8_t bufsize = vfs_blocksize (STATE->u.vfs.fd);
+    if (bufsize)
+    	readlen -= readlen % bufsize;
+
+    vfs_size_t len = vfs_read (STATE->u.vfs.fd, uip_appdata, readlen);
     if (len <= 0) {
 	uip_abort ();
 	httpd_cleanup ();
 	return;
     }
 
-    if (len < uip_mss ())	/* Short read -> EOF */
+    if (len < readlen)		/* Short read -> EOF */
 	STATE->eof = 1;
 
     STATE->u.vfs.sent = STATE->u.vfs.acked + len;

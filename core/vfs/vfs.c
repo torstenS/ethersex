@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -48,6 +48,9 @@ struct vfs_func_t vfs_funcs[] PROGMEM = {
 #endif
 #ifdef VFS_DC3840_SUPPORT
   VFS_DC3840_FUNCS,
+#endif
+#ifdef VFS_MCA25_SUPPORT
+  VFS_MCA25_FUNCS,
 #endif
 };
 
@@ -99,7 +102,7 @@ vfs_read_write_size(uint8_t flag, struct vfs_file_handle_t *handle, void *buf,
     return 0;
 }
 
-/* flag: 0=fseek, 1=truncate, 2=close */
+/* flag: 0=fseek, 1=truncate, 2=close, 3=blocksize */
 uint8_t
 vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t *handle,
                          vfs_size_t length, uint8_t whence)
@@ -116,6 +119,9 @@ vfs_fseek_truncate_close(uint8_t flag, struct vfs_file_handle_t *handle,
 
   if (flag == 2 && funcs.close)
     funcs.close(handle);
+
+  if (flag == 3)
+    return funcs.blocksize;
 
   return 0;
 }
