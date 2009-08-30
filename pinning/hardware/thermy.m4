@@ -18,10 +18,9 @@ pin(STELLRAD_A, PB5)
 pin(STELLRAD_B, PB4)
 
 dnl Taster
-pin(TASTE_AUTO, PB3)
-pin(TASTE_PROG, PB2)
-pin(TASTE_GRAD, PB1)
-pin(MONTIERT, PB0)
+pin(TASTE_AUTO, PB0)
+pin(TASTE_PROG, PB1)
+pin(TASTE_GRAD, PB2)
 
 dnl Lichtschranke (not declared OUTPUT to not touch USART0 pins)
 pin(LICHTSCHRANKE_ENABLE1, PE3)
