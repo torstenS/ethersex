@@ -72,23 +72,25 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 #endif
 
     while (l < fs20_global.fs20.len &&
-            (uint8_t)(outlen+9) < len) {
+            (uint8_t)(outlen+11) < len) {
 #ifdef DEBUG_ECMD_FS20
-        debug_printf("generating for pos %u: %02x%02x%02x%02x", l,
+        debug_printf("generating for pos %u: %02x%02x%02x%02x%02x", l,
                 fs20_global.fs20.queue[l].hc1,
                 fs20_global.fs20.queue[l].hc2,
                 fs20_global.fs20.queue[l].addr,
-                fs20_global.fs20.queue[l].cmd);
+                fs20_global.fs20.queue[l].cmd,
+				fs20_global.fs20.queue[l].ext);
 #endif
 
-        sprintf_P(s, PSTR("%02x%02x%02x%02x\n"),
+        sprintf_P(s, PSTR("%02x%02x%02x%02x%02x\n"),
                 fs20_global.fs20.queue[l].hc1,
                 fs20_global.fs20.queue[l].hc2,
                 fs20_global.fs20.queue[l].addr,
-                fs20_global.fs20.queue[l].cmd);
+                fs20_global.fs20.queue[l].cmd,
+				fs20_global.fs20.queue[l].ext);
 
-        s += 9;
-        outlen += 9;
+        s += 11;
+        outlen += 11;
         l++;
 
 #ifdef DEBUG_ECMD_FS20
@@ -108,7 +110,8 @@ int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
 {
 
     return ECMD_FINAL(snprintf_P(output, len,
-            PSTR("deg: %u.%u C, hyg: %u%%, wind: %u.%u km/h, rain: %u, counter: %u"),
+	
+            PSTR("%u.%u deg, %u%% hygro, %u.%u km/h wind, rain: %u count %u"),
             fs20_global.ws300.temp,
             fs20_global.ws300.temp_frac,
             fs20_global.ws300.hygro,

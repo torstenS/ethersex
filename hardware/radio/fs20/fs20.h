@@ -40,32 +40,36 @@
 #define FS20_BETWEEN(x, a, b) ((x >= a) && (x <= b))
 #define FS20_SYMM(x, y, r) ( (x-y) <= r && (y-x) <= r )
 
+#define FS20_PULSE_DISCR (F_CPU/1000000 * 500 / 128)
+#define FS20_PULSE_WIDTH (F_CPU/1000000 * 200 / 128)
 /* zero is 400uS: F_CPU/10^6 * 400 = 8000, with prescaler 128 gives 62.5
  * -> test if value is between 33 and 73 */
-#define FS20_PULSE_ZERO(x) FS20_BETWEEN((x), 33, 73)
+#define FS20_PULSE_ZERO(x) FS20_BETWEEN((x), 37, 62)
 /* one is 600uS: F_CPU/10^6 * 600 = 12000, with prescaler 128 gives 93.75
  * -> test if value is between 74 and 105 */
-#define FS20_PULSE_ONE(x) FS20_BETWEEN((x), 74, 105)
+#define FS20_PULSE_ONE(x) FS20_BETWEEN((x), 63, 88)
 /* maximal difference between two pulses is 115.2 uS,
  * which means 18 timer cycles with prescaler 128 */
-#define FS20_PULSE_DIFFERENCE(x,y) FS20_SYMM(x, y, 68)
+#define FS20_PULSE_DIFFERENCE(x,y) FS20_SYMM(x, y, 12)
 
 
 /* ws300 timing: */
 
 /* one is a short pulse, followed by a long pulse */
-#define WS300_PULSE_ONE(x,y)  (FS20_BETWEEN((x), 20, 80) && FS20_BETWEEN((y), 90, 180))
+/* original for 20MHz 20,80 - 90,180 */
+/* now for 16MHz */
+#define WS300_PULSE_ONE(x,y)  (FS20_BETWEEN((x), 34, 58) && FS20_BETWEEN((y), 94, 118))
 /* zero is a long pulse, followed by a short pulse */
-#define WS300_PULSE_ZERO(x,y) (FS20_BETWEEN((x), 90, 180) && FS20_BETWEEN((y), 20, 80))
+#define WS300_PULSE_ZERO(x,y) (FS20_BETWEEN((x), 94, 118) && FS20_BETWEEN((y), 34, 58))
 
 /* test if the received value might be a valid ws300 timing */
-#define WS300_VALID_VALUE(x) FS20_BETWEEN((x), 20, 180)
+#define WS300_VALID_VALUE(x) FS20_BETWEEN((x), 16, 144)
 /* test if two adjacent timings might be a valid ws300 timing */
-#define WS300_VALID_VALUES(x, y) FS20_BETWEEN((x)+(y), 110, 260)
+#define WS300_VALID_VALUES(x, y) FS20_BETWEEN((x)+(y), 88, 208)
 
 
-/* a fs20 datagram consists of 58 bits */
-#define FS20_DATAGRAM_LENGTH 58
+/* a fs20 datagram consists of 45 or 54 bits */
+#define FS20_DATAGRAM_LENGTH 54
 
 /* a ws300 datagram consists of 79 = 16*4+15 bits */
 #define FS20_WS300_DATAGRAM_LENGTH 79
@@ -133,8 +137,10 @@
 
 /* structures */
 struct fs20_datagram_t {
-    uint8_t p5:1;
-    uint8_t parity:8;
+    uint8_t p6:1;
+    uint8_t checksum:8;
+	uint8_t p5:1;
+	uint8_t ext:8;
     uint8_t p4:1;
     uint8_t cmd:8;
     uint8_t p3:1;
@@ -143,7 +149,6 @@ struct fs20_datagram_t {
     uint8_t hc2:8;
     uint8_t p1:1;
     uint8_t hc1:8;
-    uint16_t sync:13;
 };
 
 struct ws300_datagram_t {
@@ -190,37 +195,41 @@ struct fs20_global_t {
                 uint64_t raw;
                 uint16_t words[4];
             };
+            uint8_t sync:1;
+			uint8_t start:1;
+            uint8_t null:6;
             uint8_t rec;
             uint8_t err;
             struct fs20_datagram_t queue[FS20_QUEUE_LENGTH];
             uint8_t len;
             uint8_t timeout;
         } fs20;
-        #ifdef FS20_RECEIVE_WS300_SUPPORT
-            struct {
-                union {
-                    struct ws300_datagram_t datagram;
-                    uint8_t bytes[10];
-                };
-                uint8_t sync:1;
-                uint8_t null:7;
-                uint8_t rec;
-                uint8_t err;
+		#ifdef FS20_RECEIVE_WS300_SUPPORT
+			struct {
+				union {
+					struct ws300_datagram_t datagram;
+					uint8_t bytes[10];
+				};
+				uint8_t sync:1;
+				uint8_t start:1;
+				uint8_t null:6;
+				uint8_t rec;
+				uint8_t err;
 
-                int8_t temp;
-                uint8_t temp_frac:4;
+				int8_t temp;
+				uint8_t temp_frac:4;
 
-                uint8_t rain:1;
-                uint16_t rain_value;
+				uint8_t rain:1;
+				uint16_t rain_value;
 
-                uint8_t hygro;
+				uint8_t hygro;
 
-                uint8_t wind;
-                uint8_t wind_frac:4;
+				uint8_t wind;
+				uint8_t wind_frac:4;
 
-                uint16_t last_update;
-            } ws300;
-        #endif
+				uint16_t last_update;
+			} ws300;
+		#endif
     #endif
     #ifdef FS20_RECV_PROFILE
         uint16_t int_counter;
