@@ -72,7 +72,7 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 #endif
 
     while (l < fs20_global.fs20.len &&
-            (uint8_t)(outlen+11) < len) {
+            (uint8_t)(outlen+12) < len) {
 #ifdef DEBUG_ECMD_FS20
         debug_printf("generating for pos %u: %02x%02x%02x%02x%02x", l,
                 fs20_global.fs20.queue[l].hc1,
@@ -82,15 +82,16 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 				fs20_global.fs20.queue[l].ext);
 #endif
 
-        sprintf_P(s, PSTR("%02x%02x%02x%02x%02x\n"),
+        sprintf_P(s, PSTR("%c%02X%02X%02X%02X%02X\n"),
+				fs20_global.fs20.queue[l].type,
                 fs20_global.fs20.queue[l].hc1,
                 fs20_global.fs20.queue[l].hc2,
                 fs20_global.fs20.queue[l].addr,
                 fs20_global.fs20.queue[l].cmd,
 				fs20_global.fs20.queue[l].ext);
 
-        s += 11;
-        outlen += 11;
+        s += 12;
+        outlen += 12;
         l++;
 
 #ifdef DEBUG_ECMD_FS20
@@ -99,6 +100,12 @@ int16_t parse_cmd_fs20_receive(char *cmd, char *output, uint16_t len)
 #endif
     }
 
+	/* remove last newline */
+	if (outlen > 0)
+	{
+		--outlen; 
+	}
+	
     /* clear queue */
     fs20_global.fs20.len = 0;
 
@@ -111,14 +118,15 @@ int16_t parse_cmd_fs20_ws300(char *cmd, char *output, uint16_t len)
 
     return ECMD_FINAL(snprintf_P(output, len,
 	
-            PSTR("%u.%u deg, %u%% hygro, %u.%u km/h wind, rain: %u count %u"),
+            PSTR("%d.%u°C, %u%%, %u.%ukm/h, %u#%u, %us"),
             fs20_global.ws300.temp,
             fs20_global.ws300.temp_frac,
             fs20_global.ws300.hygro,
             fs20_global.ws300.wind,
             fs20_global.ws300.wind_frac,
             fs20_global.ws300.rain,
-            fs20_global.ws300.rain_value));
+            fs20_global.ws300.rain_value,
+			fs20_global.ws300.last_update));
 
 }
 #endif /* FS20_RECEIVE_WS300_SUPPORT */

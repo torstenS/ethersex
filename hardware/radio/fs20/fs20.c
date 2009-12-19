@@ -2,6 +2,7 @@
  *          fs20 sender implementation
  *
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ *        2009, Torsten Schumacher <tosch@schopl.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -136,6 +137,17 @@ void fs20_send(uint16_t housecode, uint8_t address, uint8_t command)
 
 #ifdef FS20_RECEIVE_SUPPORT
 
+/* FS20 receiver triggers the analog comperator interupt.
+   Timer 0 is used to measure the pulse width.
+   If two pulses have been measured, they are evaluated within
+   the ISR. Resulting bit is shiftet into datagram until daragram
+   is complete.
+   Timer 0 compare interrupt is triggert if there is silence for
+   1500us. This may complete a FS20 datagram without extension byte.
+   Otherwise it will clear any incompletely received datagrams.
+   Parity and checksum test as well as decoding of completely received
+   datagrams is done in the mainloop.
+*/
 ISR(ANALOG_COMP_vect)
 {
 #ifdef FS20_RECV_PROFILE
@@ -143,9 +155,9 @@ ISR(ANALOG_COMP_vect)
 #endif
 
     /* save counter for later processing and reset timer */
-    uint8_t measuredTime = TCNT2;
+    uint8_t measuredTime = TCNT0;
 	uint8_t time = measuredTime;
-    TCNT2 = 0;
+    TCNT0 = 0;
 
     /* if fs20 datagram complete or timeout > 0, continue */
     if (fs20_global.fs20.timeout == 0 &&
@@ -286,7 +298,7 @@ ISR(ANALOG_COMP_vect)
 #endif
 }
 
-ISR(TIMER2_OVF_vect)
+ISR(TIMER0_COMPA_vect)
 {
 #ifdef FS20_RECV_PROFILE
     fs20_global.ovf_counter++;
@@ -343,12 +355,12 @@ void fs20_process(void)
         /* create shortcut to fs20_global.datagram */
         volatile struct fs20_datagram_t *dg = &fs20_global.fs20.datagram;
 
-        /* check parity */
+        /* check parity and checksum */
         uint8_t p = 0;
 		uint8_t cs_fs20 = 0x06; /* constant for FS20 telegrams */
 		uint8_t cs_fht = 0x0c;  /* constant for FHT telegrams */
         uint8_t cs = 0;
-		uint8_t type = 0;
+		char type = ' ';
 
         p += parity_even_bit(dg->hc1)      ^ dg->p1;
         p += parity_even_bit(dg->hc2)      ^ dg->p2;
@@ -363,8 +375,7 @@ void fs20_process(void)
             + dg->cmd
 			+ dg->ext;
 
-        /* check parity */
-		if (p == 0) {
+ 		if (p == 0) {
 		#ifdef DEBUG_FS20_REC
 			debug_printf("parity bits valid\n");
 		#endif
@@ -372,25 +383,28 @@ void fs20_process(void)
 			#ifdef DEBUG_FS20_REC
 				debug_printf("valid FS20 datagram\n");
 			#endif
-				type = cs_fs20;
+				type = 'F';
 			} else if (dg->checksum == cs + cs_fht) {
 			#ifdef DEBUG_FS20_REC
 				debug_printf("valid FHT datagram\n");
 			#endif
-					type = cs_fht;
+				type = 'T';
 			}
 		}
-		if (type == cs_fs20 || type == cs_fht) {
+		if (type == 'F' || type == 'T') {
             /* shift queue backwards */
             memmove(&fs20_global.fs20.queue[1],
                     &fs20_global.fs20.queue[0],
-                    (FS20_QUEUE_LENGTH-1) * sizeof(struct fs20_datagram_t));
+                    (FS20_QUEUE_LENGTH-1) * sizeof(struct fs20_command_t));
 
             /* copy datagram to queue */
-            memcpy(&fs20_global.fs20.queue[0],
-                   (const void *)&fs20_global.fs20.datagram,
-                    sizeof(struct fs20_datagram_t));
-
+			fs20_global.fs20.queue[0].type = type;
+			fs20_global.fs20.queue[0].hc1=fs20_global.fs20.datagram.hc1;
+			fs20_global.fs20.queue[0].hc2=fs20_global.fs20.datagram.hc2;
+			fs20_global.fs20.queue[0].addr=fs20_global.fs20.datagram.addr;
+			fs20_global.fs20.queue[0].cmd=fs20_global.fs20.datagram.cmd;
+			fs20_global.fs20.queue[0].ext=fs20_global.fs20.datagram.ext;
+			
             if (fs20_global.fs20.len < FS20_QUEUE_LENGTH)
                 fs20_global.fs20.len++;
 
@@ -401,10 +415,10 @@ void fs20_process(void)
         debug_printf("queue fill is %u:\n", fs20_global.fs20.len);
 
         for (uint8_t l = 0; l < fs20_global.fs20.len; l++) {
-            struct fs20_datagram_t *dg = &fs20_global.fs20.queue[l];
+            struct fs20_command_t *dg = &fs20_global.fs20.queue[l];
 
-            debug_printf("%u: hc %02x%02x addr %02x cmd %02x ext %02x\n", l,
-                    dg->hc1, dg->hc2,
+            debug_printf("%u: %c hc %02x%02x addr %02x cmd %02x ext %02x\n", l,
+                    dg->type, dg->hc1, dg->hc2,
                     dg->addr, dg->cmd, dg->ext);
         }
 #endif
@@ -544,7 +558,7 @@ void ws300_parse_datagram(void)
     fs20_global.ws300.last_update = 0;
 
     #ifdef DEBUG_FS20_WS300
-    debug_printf("new ws300 values: %u.%u deg, %u%% hygro, %u.%u km/h wind, %s rain, %u rain count\n",
+    debug_printf("new ws300 values: %d.%u deg, %u%% hygro, %u.%u km/h wind, %s rain, %u rain count\n",
             fs20_global.ws300.temp,
             fs20_global.ws300.temp_frac,
             fs20_global.ws300.hygro,
@@ -588,13 +602,14 @@ void fs20_init(void)
      */
     ACSR = _BV(ACBG) | _BV(ACI) | _BV(ACIE);
 
-    /* configure timer2 for receiving fs20,
-     * prescaler 128
-     * overflow interrupt enabled */
-    TCNT2 = 0;
-    TCCR2A = 0;
-    TCCR2B = _BV(CS20) | _BV(CS22);
-    _TIMSK_TIMER2 = _BV(TOIE2);
+    /* configure timer0 for receiving fs20,
+     * prescaler 256
+     * CTC mode with OC interrupt enabled */
+    TCNT0 = 0;
+    TCCR0A = _BV(WGM01);
+    TCCR0B = _BV(CS02);
+	OCR0A = FS20_US2T(1500);
+    TIMSK0 = _BV(OCIE0A);
 
 #ifdef FS20_RECEIVE_WS300_SUPPORT
 
