@@ -26,6 +26,7 @@ struct VirtualPin {
   uint8_t old_state;
   uint8_t state;
   uint8_t last_input;
+  uint8_t mask;
   /* Call function on edge */
   void (*func)(uint8_t);
 };

@@ -1,0 +1,17 @@
+#
+#   Named Pin Configuration File
+#
+# You can assign names to your microcontroller's pins here.
+# Keep in mind that this names must consist of alphanumeric 
+# characters only!
+#
+# Every line starting with a hash sign (#) is a comment.
+#
+# Active LOW inputs will have pullup enabled
+#
+# PIN | IN/OUT | When active? | Name
+#-----+--------+--------------+----------------
+PD2	INPUT	 HIGH		BurnErr
+PD6	OUTPUT	 LOW		WarmWater
+PD3	INPUT	 HIGH		Burner
+PD4	INPUT	 HIGH		WAlarm

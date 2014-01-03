@@ -50,6 +50,7 @@ watchcat_do_httplog (uip_ipaddr_t *ip, PGM_P msg, client_return_text_callback_t 
 #include "user_config.h"
 
 void watchcat_edge(uint8_t pin);
+void watchcat_port_init2();
 
 void
 watchcat_init(void)
@@ -59,9 +60,26 @@ watchcat_init(void)
     vpin[i].old_state = 0;
     vpin[i].state = 0;
     vpin[i].last_input = 0;
+	vpin[i].mask = 0;
     vpin[i].func = NULL;
   }
-  watchcat_port_init();
+  watchcat_port_init2();
+}
+
+void watchcat_port_init2()
+{
+  uint8_t i = 0;
+  uint8_t port;
+  uint8_t pin;
+  while (1) {
+    port = (uint8_t) pgm_read_byte(&ecmd_react[i].port);
+    pin = (uint8_t) pgm_read_byte(&ecmd_react[i].pin);
+    if (port == 255)
+      return;
+	vpin[port].func = watchcat_edge;
+	vpin[port].mask |= _BV(pin);
+	i++;
+  } 
 }
 
 void
@@ -69,19 +87,22 @@ watchcat_periodic(void)
 {
   uint8_t i;
   for (i = 0; i < IO_PORTS; i++) {
-    /* debounce the buttons */
-    if ( vpin[i].last_input == vport[i].read_pin(i) )
-      vpin[i].state = vport[i].read_pin(i);
+    /* process port only if we have a handler function */
+	if ( vpin[i].func ) {
+	    /* mask out the bits we are interested in */
+		uint8_t tmp = vport[i].read_pin(i) & vpin[i].mask;
+		/* debounce the inputs */
+		if ( vpin[i].last_input == tmp )
+			vpin[i].state = tmp;
 
-    vpin[i].last_input = vport[i].read_pin(i);
+		vpin[i].last_input = tmp;
 
-    /* See if something has changed since last call */
-    if ( vpin[i].state != vpin[i].old_state ) {
-      /* If there is an handler for this port, call it */
-      if ( vpin[i].func )
-        vpin[i].func(i);
-      else
-        vpin[i].old_state = vpin[i].state;
+		/* See if something has changed since last call */
+		if ( vpin[i].state != vpin[i].old_state )
+			/* call handler */
+			vpin[i].func(i);
+		else
+			vpin[i].old_state = vpin[i].state;
     }
   }
 }
@@ -104,14 +125,14 @@ watchcat_edge(uint8_t pin)
       uint8_t falling = pgm_read_byte(&ecmd_react[i].rising);
       if ((falling && RISING_EDGE(pin, tmp))
           || (!falling && FALLING_EDGE(pin, tmp))) {
-	uip_conn_t * (* func) (uip_ipaddr_t *, PGM_P, client_return_text_callback_t);
-	func = (void *) pgm_read_word (&ecmd_react[i].func);
+		uip_conn_t * (* func) (uip_ipaddr_t *, PGM_P, client_return_text_callback_t);
+		func = (void *) pgm_read_word (&ecmd_react[i].func);
 
-	uip_ipaddr_t ipaddr;
-	memcpy_P(&ipaddr, &ecmd_react[i].address, sizeof(uip_ipaddr_t));
+		uip_ipaddr_t ipaddr;
+		memcpy_P(&ipaddr, &ecmd_react[i].address, sizeof(uip_ipaddr_t));
 
-	const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
-	if (func) func (&ipaddr, text, NULL);
+		const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
+		if (func) func (&ipaddr, text, NULL);
 
       } else  {
         i++;

@@ -36,6 +36,11 @@ ifdef(`conf_STATUSLED_HB_ACT', `dnl
 pin(STATUSLED_HB_ACT, PA0, OUTPUT)
 ')dnl
 
+ifdef(`conf_PWM_GENERAL', `dnl
+/* PWM a output */
+pin(CHANNEL_A_PWM, PD5, OUTPUT)
+')dnl
+
 ifdef(`conf_FS20', `dnl
 /* fs20 support */
 pin(FS20_SEND, PD7)
@@ -95,3 +100,4 @@ ifdef(`conf_TANKLEVEL', `
 ifdef(`conf_TANKLEVEL_LOCK', `
   pin(TANKLEVEL_LOCK, PA2, INPUT)
 ')
+

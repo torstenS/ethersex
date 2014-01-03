@@ -1,2 +1,6 @@
-ECMDTCP(PA0, RISING, 192.168.178.10, io set 254-0)
-ECMDTCP(PA0, FALLING, 192.168.178.10, io set 254-0)
+ECMDTCP(PD2, RISING, 192.168.0.3, set BurnErr on\n\n)
+ECMDTCP(PD2, FALLING, 192.168.0.3, set BurnErr off\n\n)
+ECMDTCP(PD3, RISING, 192.168.0.3, set Burner on\n\n)
+ECMDTCP(PD3, FALLING, 192.168.0.3, set Burner off\n\n)
+ECMDTCP(PD4, RISING, 192.168.0.3, set WAlarm on\n\n)
+ECMDTCP(PD4, FALLING, 192.168.0.3, set WAlarm off\n\n)
