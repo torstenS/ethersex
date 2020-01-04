@@ -1,0 +1,1 @@
+C6_SOURCE = $(TOPDIR)/control6/heating.src

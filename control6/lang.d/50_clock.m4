@@ -5,7 +5,7 @@ define(`CLOCK_USED', `')dnl
 define(`old_divert',divnum)dnl
 divert(globals_divert)#ifdef C6_CLOCK_USED
 clock_datetime_t datetime;
-uint8_t last_minute;
+uint8_t last_second;
 #ifndef CLOCK_SUPPORT
 #error Please define clock support
 #endif
@@ -18,7 +18,7 @@ divert(normal_divert)#ifdef C6_CLOCK_USED
 clock_localtime(&datetime, clock_get_time());
 #endif
 divert(control_end_divert)#ifdef C6_CLOCK_USED
-  last_minute = datetime.min;
+  last_second = datetime.sec;
 #endif
 divert(old_divert)
 
@@ -31,4 +31,4 @@ define(`CLOCK_MONTH', `datetime.month')
 define(`CLOCK_DOW', `datetime.dow')
 define(`CLOCK_YEAR', `(datetime.year + 1900)')
 
-define(`ONCE', `(datetime.min != last_minute) && ')
+define(`ONCE', `(datetime.sec != last_second) && ')

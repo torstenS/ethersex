@@ -24,15 +24,15 @@
 
 #include <avr/io.h>
 
-#define MAX_OVERFLOW          65535UL   /* timer1 max value */
-#define HZ                    50        /* 20ms */
-#if (F_CPU/256) < MAX_OVERFLOW
-#define CLOCK_PRESCALER       256UL
-#define CLOCK_SET_PRESCALER   TC1_PRESCALER_256
-#else
+#define MAX_OVERFLOW          255UL   /* timer2 max value */
+#define HZ                    62        /* 16,12ms */
+//#if (F_CPU/256) < MAX_OVERFLOW
+//#define CLOCK_PRESCALER       256UL
+//#define CLOCK_SET_PRESCALER   TC1_PRESCALER_1024
+//#else
 #define CLOCK_PRESCALER       1024UL
-#define CLOCK_SET_PRESCALER   TC1_PRESCALER_1024
-#endif
+#define CLOCK_SET_PRESCALER   TC2_PRESCALER_1024
+//#endif
 
 // timer ticks needed for one second
 #define CLOCK_SECONDS         (F_CPU/CLOCK_PRESCALER)

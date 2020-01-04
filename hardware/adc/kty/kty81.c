@@ -47,12 +47,19 @@ kty_calibrate(uint16_t sensorwert)
   return 0;
 }
 
+#define KTY_SIMPLE
+
 /* Berechnet die Temperatur in Zehntelgrad
  * vom adc wert
  */
 int16_t
 temperatur(uint16_t sensorwert)
 {
+#ifdef KTY_SIMPLE
+  int32_t temper = sensorwert;
+  temper -= 288;
+  temper *= 5;  // durch 2 (halbe grad genauigkeit) mal 10 (für 10tel grad Anzeige)
+#else
   int32_t volt = sensorwert;
   int8_t calibration;
   eeprom_restore_char (kty_calibration, &calibration);
@@ -73,6 +80,7 @@ temperatur(uint16_t sensorwert)
     temper += 173 * R;
   }
   temper /= 128;
+#endif
 #endif
   return temper;
 

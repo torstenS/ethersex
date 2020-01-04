@@ -61,6 +61,8 @@ static uint16_t ntp_timer = 1;
 timestamp_t uptime_timestamp;
 #endif
 
+static uint8_t extraTicks = 0;
+#define SYNCTICKS 252
 
 void
 clock_init(void)
@@ -134,7 +136,7 @@ clock_periodic(void)
 void
 clock_tick(void)
 {
-  if (++ticks >= 50)
+  if (++ticks >= HZ)
   {
     /* Only clock here, when no crystal is connected */
 #if !defined(CLOCK_CRYSTAL_SUPPORT) && !defined(CLOCK_CPU_SUPPORT)
@@ -143,17 +145,24 @@ clock_tick(void)
     if (!sync_timestamp || sync_timestamp == clock_timestamp)
 #endif
     {
-      clock_timestamp++;
+      if (++extraTicks >= SYNCTICKS) {
+        // Timer2 based clock is too fast. Slow down...
+        extraTicks=0;
+        --ticks;
+      } else {
+        clock_timestamp++;
 #if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
-      uptime_timestamp++;
+        uptime_timestamp++;
 #endif
+        ticks = 0;
+      }
     }
 
     if (sync_timestamp)
       sync_timestamp++;
-#endif /* CLOCK_CRYSTAL_SUPPORT */
-
+#else /* CLOCK_CRYSTAL_SUPPORT */
     ticks = 0;
+#endif
   }
 }
 
@@ -208,7 +217,7 @@ clock_set_time(timestamp_t new_sync_timestamp)
 
   sync_timestamp = new_sync_timestamp;
   n_sync_timestamp = new_sync_timestamp;
-  n_sync_tick = TIMER_8_AS_1_COUNTER_CURRENT;
+  n_sync_tick = 0; //TIMER_8_AS_1_COUNTER_CURRENT;
 
 #if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
   clock_reset_dst_change();

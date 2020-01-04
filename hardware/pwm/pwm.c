@@ -64,17 +64,21 @@ pwm_init(){
   TCCR1A|=_BV(COM1C1)|_BV(COM1C0); 		// Set OCnC on compare match
 #endif /* CH_C_PWM_GENERAL_SUPPORT */
 
-  TCCR1A|=_BV(WGM10);  					// PWM, Phase Correct, 8-bit
-
-  TCCR1B|=_BV(WGM12); 					// waveform generation mode: CTC, 
-  TCCR1B|=_BV(CS10); 					// clockselect: clkI/O/1 (No prescaling)
+  TCCR1A|=_BV(WGM10);  					// PWM, Fast, 8-bit  WGM1 bit 0101
+  TCCR1A&=~_BV(WGM11);
+  TCCR1B|=_BV(WGM12);  
+  TCCR1B&=~_BV(WGM13);
+  TC1_PRESCALER_256;
+  //TCCR1B|=_BV(CS10); 					// clockselect: clkI/O/1 (No prescaling)
+  //TCCR1B&=~_BV(CS11);
+  //TCCR1B&=~_BV(CS12);
 
   // activate PWM outports OC1C
 #ifdef CH_A_PWM_GENERAL_SUPPORT
   #if defined(_ATMEGA128)
   TCCR1C|=1<<FOC1A;					// with atmega128
   #else
-  TCCR1A|=1<<FOC1A;  					// with atmega32
+  //TCCR1A|=1<<FOC1A;  					// with atmega32
   #endif
 #endif /* CH_A_PWM_GENERAL_SUPPORT */
 #ifdef CH_B_PWM_GENERAL_SUPPORT

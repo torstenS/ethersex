@@ -1,6 +1,118 @@
+C6_HEADER(`/* This will be in control6.h */')
+
+#include "hardware/pwm/pwm.h"
+
+#define BURNER_ERR_DEVICE 0x01
+#define WALARM_DEVICE     0x02
+#define BURNER_DEVICE     0x03
+
+#define ACTION_ON         0x11
+#define ACTION_OFF        0x00
+
+static uint8_t            alarmAction;
+static uint8_t            alarmDevice;
+
 CONTROL_START
-PIN_PULLUP(BurnErr)
+
+dnl // init
+
 PIN_PULLUP(Burner)
+PIN_PULLUP(BurnErr)
 PIN_PULLUP(WAlarm)
-PIN_SET(WarmWater);
+
+THREAD(Alarms)
+
+if(alarmDevice>0) {
+  UDP_DIRECT_SEND(255.255.255.255, 9090, 9090, "F3535%02X%02X00\n", alarmDevice, alarmAction);
+  alarmDevice=0;
+}
+
+THREAD_END(Alarms)
+
+ON STARTUP DO
+  PIN_CLEAR(WarmWater);
+  setpwm('a', 255);
+  alarmDevice = 0;
+  alarmAction = 0;
+  THREAD_START(Alarms);
+END
+
+dnl // Only one message can be reported on every 'periodic' run.
+dnl // Meaning of ONCE is changed in control6/lang.d/50_clock.m4
+dnl // to mean once a second.
+
+dnl // report positive alarm messages every minute
+dnl // report alarm clear only every 5th minute.
+dnl // dedicate 'once a second' messages to individual seconds
+
+dnl // BurnErr at second 10
+ON ONCE CLOCK_SEC == 10 DO
+  ON PIN_HIGH(BurnErr) DO
+    alarmDevice=BURNER_ERR_DEVICE;
+    alarmAction=ACTION_ON;
+  END
+  ON PIN_LOW(BurnErr) && CLOCK_MIN % 5 == 0 DO
+    alarmDevice=BURNER_ERR_DEVICE;
+    alarmAction=ACTION_OFF;
+  END
+END
+
+dnl // WAlarm at second 20
+ON ONCE CLOCK_SEC == 20 DO
+  ON PIN_HIGH(WAlarm) DO
+    alarmDevice=WALARM_DEVICE;
+    alarmAction=ACTION_ON;
+  END
+  ON PIN_LOW(WAlarm) && CLOCK_MIN % 5 == 0 DO
+    alarmDevice=WALARM_DEVICE;
+    alarmAction=ACTION_OFF;
+  END
+END
+
+dnl // Burner status at second 30 every two minutes
+ON ONCE CLOCK_SEC == 30 && CLOCK_MIN % 2 == 0 DO
+  ON PIN_HIGH(Burner) DO
+    alarmDevice=BURNER_DEVICE;
+    alarmAction=ACTION_ON;
+  END
+  ON PIN_LOW(Burner) DO
+    alarmDevice=BURNER_DEVICE;
+    alarmAction=ACTION_OFF;
+  END
+END
+
+dnl // pin changes are reported immediately
+dnl // sort most important messages at the end
+ON PIN_FALLING(Burner) DO
+  alarmDevice=BURNER_DEVICE;
+  alarmAction=ACTION_OFF;
+END
+ON PIN_FALLING(BurnErr) DO
+  dnl // set pwm output to max power
+  setpwm('a', 255);
+  alarmDevice=BURNER_ERR_DEVICE;
+  alarmAction=ACTION_OFF;
+END
+ON PIN_FALLING(WAlarm) DO
+  alarmDevice=WALARM_DEVICE;
+  alarmAction=ACTION_OFF;
+END
+ON PIN_RISING(Burner) DO
+  alarmDevice=BURNER_DEVICE;
+  alarmAction=ACTION_ON;
+END
+ON PIN_RISING(BurnErr) DO
+  alarmDevice=BURNER_ERR_DEVICE;
+  alarmAction=ACTION_ON;
+END
+ON PIN_RISING(WAlarm) DO
+  alarmDevice=WALARM_DEVICE;
+  alarmAction=ACTION_ON;
+END
+
+dnl // set pwm output to zero on error
+ON PIN_HIGH(BurnErr) DO
+  setpwm('a', 0);
+END
+
 CONTROL_END

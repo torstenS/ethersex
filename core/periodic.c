@@ -63,11 +63,12 @@ periodic_init(void)
   TC1_INT_COMPARE_ON;
   TC1_INT_OVERFLOW_ON;
 #else
-  /* init timer1 to expire after ~20ms, with CTC enabled */
-  TC1_MODE_CTC;
-  TC1_COUNTER_COMPARE = (F_CPU / CLOCK_PRESCALER / HZ) - 1;
-  TC1_INT_COMPARE_ON;
-  NTPADJDEBUG("configured OCR1A to %d\n", TC1_COUNTER_COMPARE);
+  /* init timer2 to expire after ~1/HZ ms, with CTC enabled */
+  TC2_MODE_CTC;
+  TC2_COUNTER_COMPARE = (F_CPU / CLOCK_PRESCALER / HZ) - 1;
+  TC2_INT_COMPARE_ON;
+  //milliticks=0;
+  //NTPADJDEBUG("configured OCR1A to %d\n", TC1_COUNTER_COMPARE);
 #endif
 #endif
 }
@@ -76,15 +77,15 @@ periodic_init(void)
 void
 timer_expired(void)
 #else
-ISR(TC1_VECTOR_COMPARE)
+ISR(TC2_VECTOR_COMPARE)
 #endif
 {
 #ifdef CLOCK_CPU_SUPPORT
   TC1_COUNTER_COMPARE += CLOCK_TICKS;
 #endif
-  newtick = 1;
-  if (++milliticks >= HZ)
-    milliticks -= HZ;
+    newtick = 1;
+  //if (++milliticks >= HZ)
+  //  milliticks -= HZ;
 }
 
 /*
