@@ -11,6 +11,9 @@ C6_HEADER(`/* This will be in control6.h */')
 
 static uint8_t            alarmAction;
 static uint8_t            alarmDevice;
+dnl // Because we set pwm = 0 on burner error, the error input
+dnl // might oscilate. Only send reports on first edge and then periodically.
+static uint8_t            burnErrReported;
 
 CONTROL_START
 
@@ -34,6 +37,7 @@ ON STARTUP DO
   setpwm('a', 255);
   alarmDevice = 0;
   alarmAction = 0;
+  burnErrReported = 0;
   THREAD_START(Alarms);
 END
 
@@ -51,10 +55,12 @@ ON ONCE CLOCK_SEC == 10 DO
   ON PIN_LOW(BurnErr) DO
     alarmDevice=BURNER_ERR_DEVICE;
     alarmAction=ACTION_ON;
+    burnErrReported = 1;
   END
   ON PIN_HIGH(BurnErr) && CLOCK_MIN % 5 == 0 DO
     alarmDevice=BURNER_ERR_DEVICE;
     alarmAction=ACTION_OFF;
+    burnErrReported = 0;
   END
 END
 
@@ -91,8 +97,9 @@ END
 ON PIN_RISING(BurnErr) DO
   dnl // set pwm output to max power
   setpwm('a', 255);
-  alarmDevice=BURNER_ERR_DEVICE;
-  alarmAction=ACTION_OFF;
+  dnl // alarm is cleared at next periodic report
+  dnl // alarmDevice=BURNER_ERR_DEVICE;
+  dnl // alarmAction=ACTION_OFF;
 END
 ON PIN_FALLING(WAlarm) DO
   alarmDevice=WALARM_DEVICE;
@@ -102,9 +109,10 @@ ON PIN_RISING(Burner) DO
   alarmDevice=BURNER_DEVICE;
   alarmAction=ACTION_ON;
 END
-ON PIN_FALLING(BurnErr) DO
+ON PIN_FALLING(BurnErr) && burnErrReported == 0 DO
   alarmDevice=BURNER_ERR_DEVICE;
   alarmAction=ACTION_ON;
+  burnErrReported = 1;
 END
 ON PIN_RISING(WAlarm) DO
   alarmDevice=WALARM_DEVICE;
