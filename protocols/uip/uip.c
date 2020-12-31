@@ -2006,6 +2006,6 @@ uip_udp_timer(void)
   -- Ethersex META --
   header(protocols/uip/uip.h)
   header(protocols/uip/uip_router.h)
-  ifdef(`conf_TCP', `timer(10, `uip_tcp_timer()')')
-  ifdef(`conf_UDP', `timer(10, `uip_udp_timer()')')
+  ifdef(`conf_TCP', `timer(12, `uip_tcp_timer()')')
+  ifdef(`conf_UDP', `timer(12, `uip_udp_timer()')')
 */

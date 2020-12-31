@@ -45,13 +45,14 @@ dnl // report positive alarm messages every minute
 dnl // report alarm clear only every 5th minute.
 dnl // dedicate 'once a second' messages to individual seconds
 
+dnl // BurnErr is active low
 dnl // BurnErr at second 10
 ON ONCE CLOCK_SEC == 10 DO
-  ON PIN_HIGH(BurnErr) DO
+  ON PIN_LOW(BurnErr) DO
     alarmDevice=BURNER_ERR_DEVICE;
     alarmAction=ACTION_ON;
   END
-  ON PIN_LOW(BurnErr) && CLOCK_MIN % 5 == 0 DO
+  ON PIN_HIGH(BurnErr) && CLOCK_MIN % 5 == 0 DO
     alarmDevice=BURNER_ERR_DEVICE;
     alarmAction=ACTION_OFF;
   END
@@ -87,7 +88,7 @@ ON PIN_FALLING(Burner) DO
   alarmDevice=BURNER_DEVICE;
   alarmAction=ACTION_OFF;
 END
-ON PIN_FALLING(BurnErr) DO
+ON PIN_RISING(BurnErr) DO
   dnl // set pwm output to max power
   setpwm('a', 255);
   alarmDevice=BURNER_ERR_DEVICE;
@@ -101,7 +102,7 @@ ON PIN_RISING(Burner) DO
   alarmDevice=BURNER_DEVICE;
   alarmAction=ACTION_ON;
 END
-ON PIN_RISING(BurnErr) DO
+ON PIN_FALLING(BurnErr) DO
   alarmDevice=BURNER_ERR_DEVICE;
   alarmAction=ACTION_ON;
 END
@@ -111,7 +112,7 @@ ON PIN_RISING(WAlarm) DO
 END
 
 dnl // set pwm output to zero on error
-ON PIN_HIGH(BurnErr) DO
+ON PIN_LOW(BurnErr) DO
   setpwm('a', 0);
 END
 

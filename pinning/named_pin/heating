@@ -11,7 +11,7 @@
 #
 # PIN | IN/OUT | When active? | Name
 #-----+--------+--------------+----------------
-PD2	INPUT	 HIGH		BurnErr
+PD2	INPUT	 LOW		BurnErr
 PD6	OUTPUT	 LOW		WarmWater
 PD3	INPUT	 HIGH		Burner
 PD4	INPUT	 HIGH		WAlarm
