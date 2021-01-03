@@ -23,6 +23,12 @@ PIN_PULLUP(Burner)
 PIN_PULLUP(BurnErr)
 PIN_PULLUP(WAlarm)
 
+dnl // Disable digital input and pullup on 3 used ADC inputs
+dnl // Rest of (unused) Port A configured as digital input with pullup 
+DIDR0 = 0xe0;
+DDRA  = 0x00;
+PORTA = 0x1f;
+
 THREAD(Alarms)
 
 if(alarmDevice>0) {

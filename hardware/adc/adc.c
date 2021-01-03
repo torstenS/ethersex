@@ -43,8 +43,8 @@ uint16_t vref;
 void
 adc_init(void)
 {
-  /* ADC Prescaler to 64 */
-  ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1);
+  /* ADC Prescaler to 128 */
+  ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
 
   /* init reference */
   ADMUX = ADC_REF;
